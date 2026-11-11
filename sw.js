@@ -5,7 +5,7 @@
  *    Audio file > WorkFlow Recorder).
  * 3. Adds the two security headers that let the speech engine use several
  *    processor cores at once (cross-origin isolation). */
-const VERSION = 'wf-recorder-1';
+const VERSION = 'wf-recorder-2';
 const SHELL = [
   './', './index.html', './app.js', './storage.js', './audio.js', './engine.js', './styles.css',
   './recorder-worklet.js', './manifest.webmanifest', './icons/icon.svg', './icons/icon-192.png', './icons/icon-512.png',
@@ -13,7 +13,10 @@ const SHELL = [
 ];
 
 self.addEventListener('install', (event) => {
-  event.waitUntil(caches.open(VERSION).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting()));
+  // Cache each file on its own, so one missing file doesn't stop the app from installing.
+  event.waitUntil(caches.open(VERSION)
+    .then((c) => Promise.all(SHELL.map((f) => c.add(f).catch(() => null))))
+    .then(() => self.skipWaiting()));
 });
 
 self.addEventListener('activate', (event) => {

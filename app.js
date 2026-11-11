@@ -539,8 +539,9 @@ async function main() {
     try {
       await navigator.serviceWorker.register('./sw.js');
       if (!window.crossOriginIsolated && !sessionStorage.getItem('wf-coi-reload')) {
-        await navigator.serviceWorker.ready;
-        if (!navigator.serviceWorker.controller || !window.crossOriginIsolated) {
+        // If the service worker can't install (for example, a file is missing from the site), don't wait forever.
+        const reg = await Promise.race([navigator.serviceWorker.ready, new Promise((r) => setTimeout(() => r(null), 5000))]);
+        if (reg && (!navigator.serviceWorker.controller || !window.crossOriginIsolated)) {
           sessionStorage.setItem('wf-coi-reload', '1');
           location.reload();
           return;

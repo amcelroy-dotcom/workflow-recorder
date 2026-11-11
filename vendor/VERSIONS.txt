@@ -1,0 +1,3 @@
+parakeet.js 1.4.4 (MIT)
+onnxruntime-web 1.24.1 (MIT)
+Speech models: NVIDIA Parakeet TDT 0.6B v2/v3 (CC BY 4.0), ONNX exports from huggingface.co/ysdede, downloaded on the phone at first use.
