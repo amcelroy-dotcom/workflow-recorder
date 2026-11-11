@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#17322B">
+  <title>WorkFlow Recorder</title>
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="./icons/icon-192.png">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <header class="top">
+    <span class="wordmark">WorkFlow <span>Recorder</span></span>
+    <span id="paired" class="pill" hidden>Connected</span>
+  </header>
+
+  <main>
+    <div id="notice" class="notice" role="status" hidden>
+      <span id="notice-text"></span>
+      <button id="notice-close" class="link" aria-label="Dismiss">Dismiss</button>
+    </div>
+
+    <section id="pair" class="panel" hidden>
+      <h2>Connect to WorkFlow</h2>
+      <p>Open any meeting in WorkFlow and tap <b>Record on this phone</b>. That connects this app once; after that you can also open it from your home screen.</p>
+    </section>
+
+    <section class="meeting">
+      <div id="for-meeting" hidden>
+        <div class="eyebrow">Recording for</div>
+        <div class="meeting-title" id="meeting-title"></div>
+        <div class="muted"><span id="meeting-date"></span> <button id="not-this" class="link">Not this meeting</button></div>
+      </div>
+      <label id="title-field" class="field">
+        <span>Meeting name <span class="muted">(optional: WorkFlow matches it to your calendar by time)</span></span>
+        <input id="title" type="text" placeholder="Grade 7 team" autocomplete="off">
+      </label>
+    </section>
+
+    <section id="current" class="panel" hidden>
+      <h2 id="cur-title">Recording</h2>
+      <div id="cur-meta" class="muted small"></div>
+      <div id="progress" class="progress" hidden>
+        <div class="progress-text"><b id="progress-label"></b> <span id="progress-detail" class="muted"></span></div>
+        <div class="bar"><div id="progress-bar"></div></div>
+        <p class="small muted">Keep this screen open until it finishes. Everything happens on this phone.</p>
+      </div>
+      <p id="cur-error" class="error" hidden></p>
+      <div class="row-buttons">
+        <button id="act-transcribe" class="btn primary">Transcribe</button>
+        <button id="act-cancel" class="btn" hidden>Pause transcribing</button>
+        <button id="act-send" class="btn primary" hidden>Send to WorkFlow</button>
+      </div>
+      <p id="sent-note" class="small muted" hidden>Sent. It’s on the meeting in WorkFlow, with names and school terms fixed. If WorkFlow showed a sign-in page instead, tap Share as a file and save it to WorkFlow › Inbox in Drive: it lands on the same meeting.</p>
+      <pre id="transcript" class="transcript" hidden></pre>
+      <div class="row-buttons quiet">
+        <button id="act-copy" class="btn quiet" hidden>Copy</button>
+        <button id="act-share" class="btn quiet" hidden>Share as a file</button>
+        <button id="act-audio" class="btn quiet" hidden>Share the audio</button>
+        <button id="act-delete" class="btn quiet danger">Delete</button>
+      </div>
+    </section>
+
+    <section class="recorder">
+      <button id="record" class="record-btn" aria-label="Start recording">
+        <span class="dot"></span><span>Record</span>
+      </button>
+      <div id="recording" class="recording" hidden>
+        <div class="rec-top"><span class="live"></span><span id="rec-state">Recording</span></div>
+        <div id="clock" class="clock" aria-live="off">0:00</div>
+        <div class="meter" aria-hidden="true"><div id="level"></div></div>
+        <p class="small muted">Keep this screen open. The screen stays on, and the audio is saved every few seconds.</p>
+        <div class="row-buttons">
+          <button id="pause" class="btn">Pause</button>
+          <button id="stop" class="btn primary">Stop</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="import">
+      <label class="btn file-btn">
+        <input id="import" type="file" accept="audio/*,.m4a,.mp3,.wav,.ogg,.webm,.aac,.amr,.3gp">
+        Transcribe a recording you already have
+      </label>
+      <p class="small muted">Or in Pixel Recorder: Share, Audio file, WorkFlow Recorder.</p>
+    </section>
+
+    <section id="history" hidden>
+      <h2 class="section">Earlier recordings</h2>
+      <ul id="history-list" class="list"></ul>
+    </section>
+
+    <details id="settings" class="panel settings">
+      <summary>Settings and privacy</summary>
+      <label class="field"><span>Language</span>
+        <select id="set-model">
+          <option value="parakeet-tdt-0.6b-v2">English</option>
+          <option value="parakeet-tdt-0.6b-v3">English + 24 more (Spanish, French…)</option>
+        </select>
+      </label>
+      <label class="field"><span>Speed</span>
+        <select id="set-mode">
+          <option id="set-mode-auto" value="auto">Automatic</option>
+          <option value="fast">Fast: graphics chip (about 1.2 GB)</option>
+          <option value="compatible">Compatible: processor (about 650 MB)</option>
+        </select>
+      </label>
+      <label class="check"><input id="set-auto" type="checkbox"> Start transcribing as soon as I stop recording</label>
+      <label class="check"><input id="set-delete" type="checkbox"> Delete the audio from this phone 3 days after the transcript is sent</label>
+      <p id="model-status" class="small"></p>
+      <div class="row-buttons">
+        <button id="model-download" class="btn" hidden>Download the speech model now</button>
+        <button id="model-remove" class="btn quiet" hidden>Remove the speech model</button>
+      </div>
+      <p id="storage" class="small muted"></p>
+      <h3>Privacy</h3>
+      <p class="small">Recording and transcribing happen on this phone. Audio is never uploaded: the only thing that leaves the phone is the transcript, when you tap Send to WorkFlow, and it goes to your own WorkFlow in your school Google account. To check, turn on airplane mode after the model is downloaded; transcription still works.</p>
+      <p class="small muted">Speech model: NVIDIA Parakeet TDT 0.6B (CC BY 4.0), run with parakeet.js and ONNX Runtime Web (MIT).</p>
+    </details>
+  </main>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
